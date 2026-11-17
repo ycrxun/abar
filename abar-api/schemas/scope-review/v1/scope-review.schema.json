@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:abar:schema:scope-review:v1",
+  "title": "Scope Review v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "agent",
+    "fromRevision",
+    "candidateRevision",
+    "reviewer",
+    "decision",
+    "comment",
+    "reviewedAt"
+  ],
+  "properties": {
+    "agent": { "type": "string", "minLength": 1 },
+    "fromRevision": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "integer", "minimum": 1 }
+      ]
+    },
+    "candidateRevision": { "type": "integer", "minimum": 1 },
+    "reviewer": { "type": "string", "minLength": 1 },
+    "decision": { "enum": ["approved", "rejected"] },
+    "comment": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "string" }
+      ]
+    },
+    "reviewedAt": { "type": "string", "format": "date-time" }
+  }
+}

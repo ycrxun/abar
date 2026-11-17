@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:abar:schema:message:v1",
+  "title": "Message v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "sessionId",
+    "agentRevision",
+    "state",
+    "input",
+    "requestedSkills",
+    "output",
+    "toolResults",
+    "pendingApproval",
+    "pendingExternal",
+    "approval",
+    "checkpoint",
+    "createdAt",
+    "updatedAt",
+    "composition"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "sessionId": { "type": "string", "minLength": 1 },
+    "agentRevision": { "type": "integer", "minimum": 1 },
+    "state": {
+      "enum": [
+        "queued",
+        "running",
+        "waiting_approval",
+        "waiting_external",
+        "completed",
+        "failed",
+        "cancelled"
+      ]
+    },
+    "input": { "type": "string" },
+    "requestedSkills": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "output": {
+      "anyOf": [
+        { "type": "null" },
+        { "type": "string" }
+      ]
+    },
+    "toolResults": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/toolResult" }
+    },
+    "pendingApproval": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/pendingToolCall" }
+      ]
+    },
+    "pendingExternal": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/pendingExternalCall" }
+      ]
+    },
+    "approval": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/messageApproval" }
+      ]
+    },
+    "checkpoint": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/checkpoint" }
+      ]
+    },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "composition": { "$ref": "#/$defs/composition" }
+  },
+  "$defs": {
+    "toolResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["toolId", "content"],
+      "properties": {
+        "toolId": { "type": "string", "minLength": 1 },
+        "content": { "type": "string" }
+      }
+    },
+    "checkpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nextStep", "toolResults"],
+      "properties": {
+        "nextStep": { "type": "integer", "minimum": 1 },
+        "toolResults": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/toolResult" }
+        }
+      }
+    },
+    "pendingToolCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approvalId", "toolId", "argumentsJson", "idempotencyKey"],
+      "properties": {
+        "approvalId": { "type": "string", "minLength": 1 },
+        "toolId": { "type": "string", "minLength": 1 },
+        "argumentsJson": { "type": "string", "minLength": 2 },
+        "idempotencyKey": { "type": "string", "minLength": 1 }
+      }
+    },
+    "pendingExternalCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["toolId", "argumentsJson", "idempotencyKey"],
+      "properties": {
+        "toolId": { "type": "string", "minLength": 1 },
+        "argumentsJson": { "type": "string", "minLength": 2 },
+        "idempotencyKey": { "type": "string", "minLength": 1 }
+      }
+    },
+    "messageApproval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approvalId", "actor", "scopes", "decision", "comment", "reviewedAt"],
+      "properties": {
+        "approvalId": { "type": "string", "minLength": 1 },
+        "actor": { "type": "string", "minLength": 1 },
+        "scopes": { "type": "array", "items": { "type": "string" }, "uniqueItems": true },
+        "decision": { "enum": ["approved", "rejected"] },
+        "comment": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+        "reviewedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "scopeDigest",
+        "behaviorDigest",
+        "model",
+        "tools",
+        "skills",
+        "knowledge",
+        "resolvedAt"
+      ],
+      "properties": {
+        "scopeDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "behaviorDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+        "model": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["route", "modelId", "version"],
+          "properties": {
+            "route": { "type": "string", "minLength": 1 },
+            "modelId": { "type": "string", "minLength": 1 },
+            "version": { "type": "string", "minLength": 1 }
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version", "schemaDigest", "effect"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "version": { "type": "string", "minLength": 1 },
+              "schemaDigest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+              "effect": { "enum": ["read", "write"] }
+            }
+          }
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "version", "digest"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "version": { "type": "string", "minLength": 1 },
+              "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+            }
+          }
+        },
+        "knowledge": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["source", "documentId", "version", "digest", "retrievedAt"],
+            "properties": {
+              "source": { "type": "string", "minLength": 1 },
+              "documentId": { "type": "string", "minLength": 1 },
+              "version": { "type": "string", "minLength": 1 },
+              "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+              "retrievedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "resolvedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

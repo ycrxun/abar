@@ -1,0 +1,11 @@
+apiVersion: abar/v1
+kind: Agent
+metadata:
+  name: merchandise-operations-assistant
+spec:
+  modelClass: general-tool-use
+  maxSteps: 40
+  scope: scope.yaml
+  behavior: behavior.yaml
+  knowledge: knowledge.yaml
+  tools: tools.yaml

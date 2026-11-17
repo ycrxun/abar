@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:abar:schema:session:v1",
+  "title": "Session v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "tenant",
+    "agent",
+    "user",
+    "status",
+    "createdAt",
+    "lastActiveAt"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "tenant": { "type": "string", "minLength": 1 },
+    "agent": { "type": "string", "minLength": 1 },
+    "user": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["active", "idle", "closed", "archived"] },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "lastActiveAt": { "type": "string", "format": "date-time" }
+  }
+}

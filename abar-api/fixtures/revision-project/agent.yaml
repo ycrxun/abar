@@ -1,0 +1,11 @@
+apiVersion: abar/v1
+kind: Agent
+metadata:
+  name: example-assistant
+spec:
+  modelClass: general-tool-use
+  maxSteps: 30
+  scope: scope.yaml
+  behavior: behavior.yaml
+  knowledge: knowledge.yaml
+  tools: tools.yaml

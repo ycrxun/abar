@@ -1,0 +1,180 @@
+{
+  "realm": "abar",
+  "enabled": true,
+  "displayName": "ABAR OIDC Integration Test",
+  "sslRequired": "none",
+  "accessTokenLifespan": 3600,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "transfer-approver",
+        "description": "May approve transfer operations"
+      },
+      {
+        "name": "viewer",
+        "description": "May create requests but cannot approve"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "abar-test",
+      "name": "ABAR integration test",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "protocol": "openid-connect",
+      "redirectUris": [
+        "http://127.0.0.1:19090/auth/callback",
+        "http://127.0.0.1:19091/auth/callback",
+    "http://127.0.0.1:19093/auth/callback",
+    "http://127.0.0.1:19094/auth/callback"
+      ],
+      "webOrigins": [
+        "http://127.0.0.1:19090",
+        "http://127.0.0.1:19091",
+    "http://127.0.0.1:19093",
+    "http://127.0.0.1:19094"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://127.0.0.1:19090/*##http://127.0.0.1:19091/*##http://127.0.0.1:19093/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "tenant",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "tenant",
+            "claim.value": "local",
+            "jsonType.label": "String",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "realm-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "true",
+            "userinfo.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "abar-api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "abar-api",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "abar-server",
+      "name": "ABAR token introspection",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "abar-server-secret",
+      "directAccessGrantsEnabled": false,
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect"
+    }
+  ],
+  "users": [
+    {
+      "username": "alice",
+      "enabled": true,
+      "email": "alice@example.test",
+      "emailVerified": true,
+      "firstName": "Alice",
+      "lastName": "Approver",
+      "requiredActions": [],
+      "attributes": {
+        "tenant": [
+          "local"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "alice-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "transfer-approver"
+      ]
+    },
+    {
+      "username": "bob",
+      "enabled": true,
+      "email": "bob@example.test",
+      "emailVerified": true,
+      "firstName": "Bob",
+      "lastName": "Viewer",
+      "requiredActions": [],
+      "attributes": {
+        "tenant": [
+          "local"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "bob-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "viewer"
+      ]
+    },
+    {
+      "username": "charlie",
+      "enabled": true,
+      "email": "charlie@example.test",
+      "emailVerified": true,
+      "firstName": "Charlie",
+      "lastName": "Other Tenant",
+      "requiredActions": [],
+      "attributes": {
+        "tenant": [
+          "other"
+        ]
+      },
+      "credentials": [
+        {
+          "type": "password",
+          "value": "charlie-password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "viewer"
+      ]
+    }
+  ]
+}

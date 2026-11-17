@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:abar:schema:agent-revision:v1",
+  "title": "Agent Revision v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": { "const": "abar/v1" },
+    "kind": { "const": "AgentRevision" },
+    "metadata": { "$ref": "#/$defs/metadata" },
+    "spec": { "$ref": "#/$defs/spec" }
+  },
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agent"],
+      "properties": {
+        "agent": { "type": "string", "minLength": 1 }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revision",
+        "resourceScope",
+        "behavior",
+        "knowledgeSources",
+        "toolBindings"
+      ],
+      "properties": {
+        "revision": { "type": "integer", "minimum": 1 },
+        "resourceScope": { "$ref": "#/$defs/resourceScope" },
+        "behavior": { "$ref": "#/$defs/behavior" },
+        "knowledgeSources": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/knowledgeSource" }
+        },
+        "toolBindings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/toolBinding" }
+        }
+      }
+    },
+    "resourceScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tools",
+        "skills",
+        "knowledgeSources",
+        "data",
+        "resources"
+      ],
+      "properties": {
+        "tools": { "$ref": "#/$defs/toolScope" },
+        "skills": { "$ref": "#/$defs/stringArray" },
+        "knowledgeSources": { "$ref": "#/$defs/stringArray" },
+        "data": { "$ref": "#/$defs/dataScope" },
+        "resources": { "$ref": "#/$defs/resourceLimits" }
+      }
+    },
+    "toolScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["read", "write"],
+      "properties": {
+        "read": { "$ref": "#/$defs/stringArray" },
+        "write": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "stringArray": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "dataScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["allow", "deny"],
+      "properties": {
+        "allow": { "$ref": "#/$defs/stringArray" },
+        "deny": { "$ref": "#/$defs/stringArray" }
+      }
+    },
+    "resourceLimits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["modelClass", "maxSteps"],
+      "properties": {
+        "modelClass": { "type": "string", "minLength": 1 },
+        "maxSteps": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt", "skills", "rules"],
+      "properties": {
+        "prompt": { "$ref": "#/$defs/contentReference" },
+        "skills": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/versionedReference" }
+        },
+        "rules": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/versionedReference" }
+        }
+      }
+    },
+    "contentReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ref", "digest"],
+      "properties": {
+        "ref": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "versionedReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "digest"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "digest": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "knowledgeSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "required", "retrieval"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "required": { "type": "boolean" },
+        "retrieval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["topK"],
+          "properties": {
+            "topK": { "type": "integer", "minimum": 1 }
+          }
+        }
+      }
+    },
+    "toolBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "versionRange", "effect"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "versionRange": { "type": "string", "minLength": 1 },
+        "effect": { "enum": ["read", "write"] }
+      }
+    }
+  }
+}

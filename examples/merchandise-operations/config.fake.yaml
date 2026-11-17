@@ -1,0 +1,8 @@
+models:
+  default:
+    provider: openai-compatible
+    modelId: example-model-v1
+    endpoint: http://127.0.0.1:18081/v1
+    capabilities:
+      - text
+      - tool-calls

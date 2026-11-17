@@ -1,0 +1,16 @@
+[package]
+name = "abar-tool-fake"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Deterministic offline ToolRegistry for ABAR tests"
+
+[dependencies]
+abar-api.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

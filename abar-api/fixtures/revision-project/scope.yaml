@@ -1,0 +1,16 @@
+tools:
+  read:
+    - catalog.query-*
+  write:
+    - records.apply
+skills:
+  - decision-guidance
+knowledgeSources:
+  - policy
+data:
+  allow:
+    - catalog
+    - records
+  deny:
+    - restricted-a
+    - restricted-b

@@ -1,0 +1,13 @@
+sources:
+  - id: allocation-policy
+    required: true
+    retrieval:
+      topK: 4
+  - id: replenishment-policy
+    required: true
+    retrieval:
+      topK: 4
+  - id: transfer-policy
+    required: true
+    retrieval:
+      topK: 4

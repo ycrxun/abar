@@ -1,0 +1,98 @@
+{
+  "apiVersion": "abar/v1",
+  "kind": "AgentRevision",
+  "metadata": {
+    "agent": "example-assistant"
+  },
+  "spec": {
+    "revision": 18,
+    "resourceScope": {
+      "tools": {
+        "read": [
+          "catalog.query-*",
+          "records.query-*"
+        ],
+        "write": [
+          "records.apply"
+        ]
+      },
+      "skills": [
+        "decision-guidance",
+        "approval-guidance"
+      ],
+      "knowledgeSources": [
+        "policy",
+        "capacity-guidance"
+      ],
+      "data": {
+        "allow": [
+          "catalog",
+          "records",
+          "capacity"
+        ],
+        "deny": [
+          "restricted-a",
+          "restricted-b",
+          "restricted-c"
+        ]
+      },
+      "resources": {
+        "modelClass": "general-tool-use",
+        "maxSteps": 30
+      }
+    },
+    "behavior": {
+      "prompt": {
+        "ref": "prompt/system.md",
+        "digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "skills": [
+        {
+          "id": "decision-guidance",
+          "version": "11",
+          "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        },
+        {
+          "id": "approval-guidance",
+          "version": "7",
+          "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+        }
+      ],
+      "rules": [
+        {
+          "id": "decision-rules",
+          "version": "9",
+          "digest": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+        }
+      ]
+    },
+    "knowledgeSources": [
+      {
+        "id": "policy",
+        "required": true,
+        "retrieval": {
+          "topK": 8
+        }
+      },
+      {
+        "id": "capacity-guidance",
+        "required": false,
+        "retrieval": {
+          "topK": 4
+        }
+      }
+    ],
+    "toolBindings": [
+      {
+        "id": "catalog.query-example",
+        "versionRange": ">=4.7 <5.0",
+        "effect": "read"
+      },
+      {
+        "id": "records.apply",
+        "versionRange": ">=6.2 <7.0",
+        "effect": "write"
+      }
+    ]
+  }
+}

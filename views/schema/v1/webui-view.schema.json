@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:abar:schema:webui-view:v1",
+  "title": "Agent WebUI View v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "binding", "metadata", "task"],
+  "properties": {
+    "apiVersion": { "const": "webui/v1" },
+    "kind": { "const": "WebUIView" },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agent"],
+      "properties": {
+        "agent": { "type": "string", "minLength": 1 }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "title"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "title": { "type": "string", "minLength": 1 },
+        "subtitle": { "type": "string" },
+        "badges": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fields", "actions"],
+      "properties": {
+        "title": { "type": "string" },
+        "chatPlaceholder": { "type": "string" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/taskField" }
+        },
+        "actions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/taskAction" }
+        }
+      }
+    },
+    "detail": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "titleTemplate": { "type": "string" },
+        "titleToolId": { "type": "string" },
+        "titlePath": { "type": "string" }
+      }
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "inputTemplate"],
+      "properties": {
+        "label": { "type": "string", "minLength": 1 },
+        "inputTemplate": { "type": "string", "minLength": 1 },
+        "requestedSkills": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "path"],
+        "properties": {
+          "label": { "type": "string" },
+          "toolId": { "type": "string" },
+          "path": { "type": "string" }
+        }
+      }
+    },
+    "panels": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "title", "columns"],
+        "properties": {
+          "type": { "const": "table" },
+          "title": { "type": "string" },
+          "toolId": { "type": "string" },
+          "rowsPath": { "type": "string" },
+          "meta": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["label", "path"],
+              "properties": {
+                "label": { "type": "string" },
+                "path": { "type": "string" }
+              }
+            }
+          },
+          "columns": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["label"],
+              "properties": {
+                "label": { "type": "string" },
+                "path": { "type": "string" },
+                "paths": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "format": { "type": "string" },
+                "join": { "type": "string" },
+                "className": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "title": { "type": "string" },
+        "approveLabel": { "type": "string" },
+        "rejectLabel": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "taskField": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "label", "type"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$" },
+        "label": { "type": "string" },
+        "type": { "enum": ["text", "textarea", "select"] },
+        "defaultValue": { "type": "string" },
+        "placeholder": { "type": "string" },
+        "options": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "taskAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "inputTemplate"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*$" },
+        "label": { "type": "string" },
+        "primary": { "type": "boolean" },
+        "inputTemplate": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

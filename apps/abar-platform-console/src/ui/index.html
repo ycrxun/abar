@@ -1,0 +1,143 @@
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ABAR Platform Console</title>
+  <link rel="stylesheet" href="/assets/platform.css?v=__CSS_VERSION__">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div>
+        <h1>ABAR Platform Console</h1>
+        <p>Agent 目录、Revision 治理与 Runtime 概览</p>
+      </div>
+    </div>
+    <div class="user-area">
+      <span id="currentUser">正在验证身份</span>
+      <button id="logout" class="quiet" type="button" hidden>退出</button>
+    </div>
+  </header>
+  <div class="shell">
+    <aside class="sidebar">
+      <nav id="navigation" aria-label="平台导航">
+        <button class="nav-item active" data-view="overview" type="button">概览</button>
+        <button class="nav-item" data-view="agents" type="button">Agent 目录</button>
+        <button class="nav-item" data-view="runtime" type="button">Runtime</button>
+      </nav>
+      <div class="sidebar-note">
+        <span>CONTROL PLANE</span>
+        <p>只管理系统事实，不承载业务对话。</p>
+      </div>
+      <button id="refresh" class="refresh" type="button">刷新数据</button>
+    </aside>
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">PLATFORM</p>
+          <h2 id="viewTitle">平台概览</h2>
+          <p id="viewSubtitle">当前 Tenant 的 Agent 与 Runtime 状态</p>
+        </div>
+        <div class="head-meta">
+          <span id="tenant" class="pill">tenant: —</span>
+          <span id="generatedAt" class="muted"></span>
+        </div>
+      </div>
+      <div id="error" class="error" role="alert"></div>
+
+      <section id="overviewView" class="view">
+        <div id="metrics" class="metrics"></div>
+        <div class="grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">RUNTIME</p>
+                <h3>运行状态</h3>
+              </div>
+              <span id="runtimeStatus" class="status">—</span>
+            </div>
+            <dl id="runtimeSummary" class="facts"></dl>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">CATALOG</p>
+                <h3>Agent 目录</h3>
+              </div>
+              <button class="link-button" data-view-target="agents" type="button">查看全部</button>
+            </div>
+            <div id="overviewAgents" class="agent-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="agentsView" class="view" hidden>
+        <div class="split">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">CATALOG</p>
+                <h3>Agent 目录</h3>
+              </div>
+              <span id="agentCount" class="muted"></span>
+            </div>
+            <div id="agents" class="agent-list"></div>
+          </section>
+          <section id="agentDetail" class="panel detail-panel">
+            <div class="empty-detail">选择一个 Agent 查看 Revision 与 Scope。</div>
+          </section>
+        </div>
+      </section>
+
+      <section id="runtimeView" class="view" hidden>
+        <div class="grid runtime-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Session</h3>
+              <span id="sessionTotal" class="muted"></span>
+            </div>
+            <div id="sessionStates" class="state-grid"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <h3>Message</h3>
+              <span id="messageTotal" class="muted"></span>
+            </div>
+            <div id="messageStates" class="state-grid"></div>
+          </section>
+          <section class="panel">
+            <div class="panel-head">
+              <h3>基础设施</h3>
+            </div>
+            <dl id="runtimeInfra" class="facts"></dl>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <section id="reviewPanel" class="review-panel" role="dialog" aria-modal="true" hidden>
+    <div class="review-card">
+      <div class="panel-head">
+        <div>
+          <p class="eyebrow">SCOPE REVIEW</p>
+          <h3 id="reviewTitle">Revision 评审</h3>
+        </div>
+        <button id="reviewClose" class="icon-button" type="button" aria-label="关闭">×</button>
+      </div>
+      <div id="reviewScope" class="review-scope"></div>
+      <label>
+        评审意见
+        <textarea id="reviewComment" rows="4" placeholder="记录批准或拒绝原因"></textarea>
+      </label>
+      <div id="reviewError" class="error"></div>
+      <div class="review-actions">
+        <button id="reviewApprove" type="button">批准并设为 Current</button>
+        <button id="reviewReject" class="danger" type="button">拒绝</button>
+      </div>
+    </div>
+  </section>
+  <script type="module" src="/assets/platform.js?v=__JS_VERSION__"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+tools:
+  - id: inventory.calculate_allocation_plan
+    versionRange: "*"
+    effect: read
+  - id: inventory.calculate_replenishment_plan
+    versionRange: "*"
+    effect: read
+  - id: inventory.calculate_transfer_recommendations
+    versionRange: "*"
+    effect: read
+  - id: inventory.query_store_inventory
+    versionRange: "*"
+    effect: read
+  - id: inventory.query_sales_velocity
+    versionRange: "*"
+    effect: read
+  - id: inventory.query_in_transit
+    versionRange: "*"
+    effect: read
+  - id: inventory.create_allocation_order
+    versionRange: "*"
+    effect: write
+  - id: inventory.create_replenishment_order
+    versionRange: "*"
+    effect: write
+  - id: inventory.create_transfer_order
+    versionRange: "*"
+    effect: write

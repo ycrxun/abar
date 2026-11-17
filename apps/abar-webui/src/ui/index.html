@@ -1,0 +1,253 @@
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent WebUI</title>
+  <link rel="stylesheet" href="/assets/webui.css?v=__CSS_VERSION__">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-lockup">
+      <button
+        id="sidebarToggle"
+        class="icon-button"
+        type="button"
+        aria-label="折叠侧边栏"
+        aria-controls="sidebar"
+        title="折叠侧边栏"
+      >⇤</button>
+      <div class="brand-mark">A</div>
+      <div>
+        <h1 id="appTitle">Agent</h1>
+        <p id="appSubtitle">会话与执行控制系统</p>
+      </div>
+    </div>
+    <div class="user-area">
+      <div id="appBadges"></div>
+      <span id="currentUser">正在验证身份</span>
+      <button id="logout" class="quiet-button" type="button" hidden>退出</button>
+    </div>
+  </header>
+  <div id="appShell" class="app-shell">
+    <aside id="sidebar" class="sidebar">
+      <button id="newChat" class="new-chat" type="button">
+        <span>＋</span>
+        新对话
+      </button>
+      <div class="sidebar-scroll">
+        <section class="sidebar-section">
+          <div class="section-heading">
+            <span>对话</span>
+            <button id="refresh" class="icon-button" type="button" aria-label="刷新">↻</button>
+          </div>
+          <div id="sessions" class="session-list"></div>
+        </section>
+        <section id="approvalsSection" class="sidebar-section">
+          <div class="section-heading">
+            <span>待审批</span>
+          </div>
+          <div id="approvals" class="session-list"></div>
+        </section>
+      </div>
+      <div class="agent-card">
+        <span>AGENT</span>
+        <code id="agentIdentity">正在加载</code>
+      </div>
+    </aside>
+    <section id="workspace" class="workspace">
+      <div id="approvalDetail" class="state-page" hidden>
+        <div class="detail-head">
+          <div>
+            <p class="eyebrow">APPROVAL</p>
+            <h2>审批任务</h2>
+            <code id="approvalTaskId"></code>
+            <div id="approvalTaskMeta" class="event-detail"></div>
+          </div>
+          <span class="status waiting_approval">等待审批</span>
+        </div>
+        <div class="panel approval">
+          <h3 id="approvalTool">写入操作</h3>
+          <div id="approvalRequester" class="event-detail"></div>
+          <div class="approval-fields">
+            <label>
+              审批范围（逗号分隔）
+              <input id="inboxApprovalScopes" placeholder="输入审批范围">
+            </label>
+            <label>
+              审批意见
+              <input id="inboxApprovalComment" placeholder="可选">
+            </label>
+          </div>
+          <div class="button-row">
+            <button id="inboxApprove" type="button">批准</button>
+            <button id="inboxReject" class="danger" type="button">拒绝</button>
+          </div>
+          <div id="approvalError" class="error"></div>
+        </div>
+        <div class="panel">
+          <h3>精确 Tool 参数</h3>
+          <pre id="approvalArguments"></pre>
+        </div>
+      </div>
+      <div id="empty" class="empty-state">
+        <div class="empty-inner">
+          <div class="empty-mark">A</div>
+          <p class="eyebrow">CONVERSATION</p>
+          <h2 id="emptyTitle">开始一段对话</h2>
+          <p id="emptySubtitle">直接描述目标，Agent 会判断需要了解什么以及下一步执行什么。</p>
+          <div id="emptySuggestions" class="suggestion-grid"></div>
+        </div>
+      </div>
+      <div id="detail" class="detail-view" hidden>
+        <div class="detail-head conversation-header">
+          <div>
+            <p class="eyebrow">CONVERSATION</p>
+            <h2 id="detailTitle">任务详情</h2>
+            <div class="conversation-subhead">
+              <code id="sessionId"></code>
+              <span id="revisionRef" class="event-detail"></span>
+            </div>
+            <select id="messageSelect" aria-label="Message 历史" hidden></select>
+          </div>
+          <span id="status" class="status"></span>
+        </div>
+        <div class="detail-grid">
+          <section class="conversation-column">
+            <div id="conversation" class="conversation"></div>
+            <div id="approval"></div>
+            <div id="messageActions" class="message-actions"></div>
+          </section>
+          <aside id="contextRail" class="context-rail">
+            <div class="rail-heading">
+              <div class="rail-title">
+                <span>上下文</span>
+                <span class="rail-hint">计划 · 证据 · 事件</span>
+              </div>
+              <button
+                id="contextToggle"
+                class="rail-toggle"
+                type="button"
+                aria-pressed="false"
+                aria-controls="contextRail"
+                title="放大上下文"
+              >
+                <span id="contextToggleIcon" aria-hidden="true">⤢</span>
+                <span id="contextToggleLabel">放大</span>
+              </button>
+            </div>
+            <div id="metrics" class="metrics"></div>
+            <div id="panels"></div>
+            <details class="rail-section">
+              <summary>运行组合</summary>
+              <div id="compositionSummary" class="event-detail"></div>
+              <pre id="composition">null</pre>
+            </details>
+            <details class="rail-section">
+              <summary>最终输出与原始结果</summary>
+              <pre id="output">尚无最终输出</pre>
+              <pre id="rawResults">[]</pre>
+            </details>
+            <details class="rail-section" open>
+              <summary>运行事件</summary>
+              <div id="timeline" class="timeline"></div>
+            </details>
+          </aside>
+        </div>
+      </div>
+      <form id="taskForm" class="composer-shell">
+        <div id="businessQuick" class="business-quick" hidden>
+          <button id="quickToggle" class="quick-toggle" type="button" aria-expanded="false">
+            <span>业务快捷指令</span>
+            <span aria-hidden="true">⌄</span>
+          </button>
+          <div id="quickPanel" class="quick-panel" hidden>
+            <div id="taskFields" class="form-grid"></div>
+            <div id="taskActions" class="button-row"></div>
+          </div>
+        </div>
+        <div class="composer">
+          <textarea
+            id="taskInput"
+            rows="1"
+            placeholder="告诉 Agent 你想了解什么或要执行什么"
+          ></textarea>
+          <button id="taskSend" class="send-button" type="button" aria-label="发送消息">↑</button>
+        </div>
+        <div class="composer-meta">
+          <span id="composerMode">新对话</span>
+          <span id="taskHint">Enter 发送 · Shift+Enter 换行</span>
+        </div>
+        <div id="createError" class="error"></div>
+      </form>
+      <button
+        id="floatingLauncher"
+        class="floating-launcher"
+        type="button"
+        aria-expanded="false"
+        aria-controls="floatingComposer"
+        aria-label="打开快捷处理"
+        title="快捷处理"
+      >＋</button>
+      <section
+        id="floatingComposer"
+        class="floating-composer"
+        role="dialog"
+        aria-label="快捷处理消息框"
+        hidden
+      >
+        <div class="floating-head">
+          <div class="floating-title-block">
+            <div class="floating-agent-mark">A</div>
+            <div>
+              <strong id="floatingTitle">Agent</strong>
+              <span id="floatingSubtitle">会话、处理建议与执行</span>
+            </div>
+          </div>
+          <div class="floating-head-actions">
+            <span class="floating-status-dot" aria-hidden="true"></span>
+            <button id="floatingClose" class="floating-close" type="button" aria-label="收起">—</button>
+          </div>
+        </div>
+        <div class="floating-scroll">
+          <div id="floatingConversation" class="floating-conversation"></div>
+        </div>
+        <div class="floating-compose-area">
+          <section id="floatingQuickSection" class="floating-quick-section" hidden>
+            <div class="floating-section-title">
+              <span>业务快捷内容</span>
+              <span>点选加入消息</span>
+            </div>
+            <div id="floatingActions" class="floating-actions"></div>
+          </section>
+          <div class="floating-compose">
+            <button
+              id="floatingQuickAdd"
+              class="floating-quick-add"
+              type="button"
+              aria-expanded="false"
+              aria-label="查看业务快捷内容"
+              title="业务快捷内容"
+            >＋</button>
+            <textarea
+              id="floatingInput"
+              rows="1"
+              placeholder="描述任务，或点选业务快捷内容"
+            ></textarea>
+            <button
+              id="floatingSend"
+              class="floating-send"
+              type="button"
+              aria-label="发送消息"
+            >↑</button>
+          </div>
+          <div class="floating-compose-meta">
+            <span>与主 Composer 共用草稿</span>
+            <span>Enter 发送 · Shift+Enter 换行</span>
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+  <script type="module" src="/assets/webui.js?v=__JS_VERSION__"></script>
+</body>
+</html>

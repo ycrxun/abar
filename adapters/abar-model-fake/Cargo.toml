@@ -1,0 +1,14 @@
+[package]
+name = "abar-model-fake"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Deterministic offline ModelProvider for ABAR tests"
+
+[dependencies]
+abar-api.workspace = true
+tokio.workspace = true
+
+[lints]
+workspace = true

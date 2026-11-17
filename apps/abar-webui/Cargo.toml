@@ -1,0 +1,26 @@
+[package]
+name = "abar-webui"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Agent WebUI for Revision Sessions, Messages, approvals, and business views"
+
+[[bin]]
+name = "abar-webui"
+path = "src/main.rs"
+
+[dependencies]
+axum.workspace = true
+base64.workspace = true
+futures-util.workspace = true
+rand.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+sha2.workspace = true
+tokio.workspace = true
+
+[lints]
+workspace = true

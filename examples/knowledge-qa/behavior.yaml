@@ -1,0 +1,9 @@
+prompt: prompt/system.md
+skills:
+  - id: grounded-qa
+    version: "1.0.0"
+    path: skills/grounded-qa
+rules:
+  - id: answer-boundaries
+    version: "1"
+    path: rules/answer-boundaries.md

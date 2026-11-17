@@ -1,0 +1,10 @@
+modelRef: default
+modelVersion: ollama-llama3.2
+tools:
+  mcpServers: []
+knowledge:
+  sources:
+    product-handbook:
+      path: knowledge/product-handbook
+dataPolicy:
+  fields: []

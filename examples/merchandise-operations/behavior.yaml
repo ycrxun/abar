@@ -1,0 +1,21 @@
+prompt: prompt/system.md
+skills:
+  - id: merchandise-intent-routing
+    version: "1.0.0"
+    path: skills/merchandise-intent-routing
+  - id: merchandise-write-approval
+    version: "1.0.0"
+    path: skills/merchandise-write-approval
+rules:
+  - id: merchandise-routing-rules
+    version: "1"
+    path: rules/routing-rules.md
+  - id: allocation-rules
+    version: "1"
+    path: rules/allocation-rules.md
+  - id: replenishment-rules
+    version: "1"
+    path: rules/replenishment-rules.md
+  - id: transfer-rules
+    version: "1"
+    path: rules/transfer-rules.md

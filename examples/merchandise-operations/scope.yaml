@@ -1,0 +1,28 @@
+tools:
+  read:
+    - inventory.calculate_allocation_plan
+    - inventory.calculate_replenishment_plan
+    - inventory.calculate_transfer_recommendations
+    - inventory.query_*
+  write:
+    - inventory.create_allocation_order
+    - inventory.create_replenishment_order
+    - inventory.create_transfer_order
+skills:
+  - merchandise-intent-routing
+  - merchandise-write-approval
+knowledgeSources:
+  - allocation-policy
+  - replenishment-policy
+  - transfer-policy
+data:
+  allow:
+    - inventory
+    - sales
+    - store-capacity
+    - product-lifecycle
+    - logistics
+  deny:
+    - cost
+    - gross-margin
+    - supplier-price

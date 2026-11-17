@@ -1,0 +1,11 @@
+apiVersion: abar/v1
+kind: Agent
+metadata:
+  name: knowledge-qa-assistant
+spec:
+  modelClass: grounded-qa
+  maxSteps: 6
+  scope: scope.yaml
+  behavior: behavior.yaml
+  knowledge: knowledge.yaml
+  tools: tools.yaml

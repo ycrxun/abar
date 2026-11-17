@@ -1,0 +1,9 @@
+prompt: prompt/system.md
+skills:
+  - id: decision-guidance
+    version: "11"
+    path: skills/decision-guidance
+rules:
+  - id: decision-rules
+    version: "9"
+    path: rules/decision-rules.yaml

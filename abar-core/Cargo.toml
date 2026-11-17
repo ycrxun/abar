@@ -1,0 +1,28 @@
+[package]
+name = "abar-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Agent Build And Runtime core implementation"
+
+[dependencies]
+abar-api.workspace = true
+axum.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+serde_yaml.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+fs2.workspace = true
+futures-util.workspace = true
+time.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+abar-model-fake = { path = "../adapters/abar-model-fake" }
+abar-tool-fake = { path = "../adapters/abar-tool-fake" }
+
+[lints]
+workspace = true

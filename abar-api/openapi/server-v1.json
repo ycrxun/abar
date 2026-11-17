@@ -1,0 +1,839 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ABAR Runtime API v1",
+    "version": "0.1.0-alpha.1",
+    "description": "Agent Revision, long-lived Session, Message, approval, recovery, and diagnostics."
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/healthz": {
+      "get": {
+        "security": [],
+        "operationId": "health",
+        "responses": {
+          "200": { "description": "Server process is alive" }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "security": [],
+        "operationId": "readiness",
+        "responses": {
+          "200": { "description": "Providers and storage are ready" },
+          "503": { "description": "Server is running but dependencies are not ready" }
+        }
+      }
+    },
+    "/metrics": {
+      "get": {
+        "security": [],
+        "operationId": "prometheusMetrics",
+        "responses": {
+          "200": {
+            "description": "Internal Prometheus metrics",
+            "content": {
+              "text/plain": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/capabilities": {
+      "get": {
+        "operationId": "capabilities",
+        "responses": {
+          "200": {
+            "description": "Supported Runtime formats and transports",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Capabilities" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/runtime/status": {
+      "get": {
+        "operationId": "getRuntimeStatus",
+        "responses": {
+          "200": {
+            "description": "Caller-scoped Runtime diagnostics",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RuntimeStatus" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/agents/{agent}/revisions": {
+      "get": {
+        "operationId": "listAgentRevisions",
+        "parameters": [{ "$ref": "#/components/parameters/Agent" }],
+        "responses": {
+          "200": {
+            "description": "Revision numbers and current pointer",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/RevisionList" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/agents/{agent}/revisions/current": {
+      "get": {
+        "operationId": "getCurrentAgentRevision",
+        "parameters": [{ "$ref": "#/components/parameters/Agent" }],
+        "responses": {
+          "200": {
+            "description": "Current immutable Agent Revision",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AgentRevision" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/agents/{agent}/revisions/{revision}": {
+      "get": {
+        "operationId": "getAgentRevision",
+        "parameters": [
+          { "$ref": "#/components/parameters/Agent" },
+          {
+            "name": "revision",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Immutable Agent Revision",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/AgentRevision" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/approvals": {
+      "get": {
+        "operationId": "listApprovalTasks",
+        "parameters": [
+          {
+            "name": "agent",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "minLength": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pending approvals the authenticated reviewer may decide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["approvals"],
+                  "properties": {
+                    "approvals": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/ApprovalTask" }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Error" },
+          "403": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/control-plane/overview": {
+      "get": {
+        "operationId": "getControlPlaneOverview",
+        "responses": {
+          "200": {
+            "description": "Tenant-scoped Agent catalog, Revision state, and Runtime aggregates",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ControlPlaneOverview" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Error" },
+          "403": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/control-plane/agents/{agent}/revisions/{revision}/review": {
+      "post": {
+        "operationId": "reviewAgentRevision",
+        "parameters": [
+          {
+            "name": "agent",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "minLength": 1 }
+          },
+          {
+            "name": "revision",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1 }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["decision"],
+                "properties": {
+                  "decision": { "enum": ["approved", "rejected"] },
+                  "comment": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Recorded Scope Review evidence",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ScopeReviewEvidence" }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Error" },
+          "403": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/sessions": {
+      "get": {
+        "operationId": "listSessions",
+        "responses": {
+          "200": {
+            "description": "Sessions owned by the authenticated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["sessions"],
+                  "properties": {
+                    "sessions": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Session" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createSession",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["agent"],
+                "properties": {
+                  "agent": { "type": "string", "minLength": 1 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Session created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Session" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sessions/{id}": {
+      "get": {
+        "operationId": "getSession",
+        "parameters": [{ "$ref": "#/components/parameters/SessionId" }],
+        "responses": {
+          "200": {
+            "description": "Owned Session",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Session" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/sessions/{id}/close": {
+      "post": {
+        "operationId": "closeSession",
+        "parameters": [{ "$ref": "#/components/parameters/SessionId" }],
+        "responses": {
+          "200": { "description": "Session closed" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/sessions/{id}/archive": {
+      "post": {
+        "operationId": "archiveSession",
+        "parameters": [{ "$ref": "#/components/parameters/SessionId" }],
+        "responses": {
+          "200": { "description": "Session archived" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/sessions/{id}/messages": {
+      "get": {
+        "operationId": "listSessionMessages",
+        "parameters": [{ "$ref": "#/components/parameters/SessionId" }],
+        "responses": {
+          "200": {
+            "description": "Messages in creation order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["messages"],
+                  "properties": {
+                    "messages": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Message" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createMessage",
+        "parameters": [{ "$ref": "#/components/parameters/SessionId" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateMessage" }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Queued Message accepted for background execution",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Message" }
+              }
+            }
+          },
+          "409": { "$ref": "#/components/responses/Error" },
+          "503": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/sessions/{id}/messages/{message_id}": {
+      "get": {
+        "operationId": "getSessionMessage",
+        "parameters": [
+          { "$ref": "#/components/parameters/SessionId" },
+          { "$ref": "#/components/parameters/MessageId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Owned Message",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Message" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/sessions/{id}/messages/{message_id}/stream": {
+      "get": {
+        "operationId": "streamMessage",
+        "parameters": [
+          { "$ref": "#/components/parameters/SessionId" },
+          { "$ref": "#/components/parameters/MessageId" },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 0 }
+          },
+          {
+            "name": "Last-Event-ID",
+            "in": "header",
+            "required": false,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Server-Sent Events containing runtime events and Message snapshots",
+            "content": {
+              "text/event-stream": {
+                "schema": { "type": "string" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/sessions/{id}/messages/{message_id}/approval": {
+      "post": {
+        "operationId": "submitApproval",
+        "parameters": [
+          { "$ref": "#/components/parameters/SessionId" },
+          { "$ref": "#/components/parameters/MessageId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ApprovalRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Approval recorded and recovery dispatched" },
+          "403": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/messages/{message_id}": {
+      "get": {
+        "operationId": "getMessage",
+        "parameters": [{ "$ref": "#/components/parameters/MessageId" }],
+        "responses": {
+          "200": {
+            "description": "Authenticated user's Message",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Message" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messages/{message_id}/events": {
+      "get": {
+        "operationId": "listMessageEvents",
+        "parameters": [
+          { "$ref": "#/components/parameters/MessageId" },
+          {
+            "name": "after",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "minimum": 0 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Committed Runtime Events after cursor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["events", "cursor"],
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/RuntimeEvent" }
+                    },
+                    "cursor": { "type": "integer", "minimum": 0 }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/messages/{message_id}/cancel": {
+      "post": {
+        "operationId": "cancelMessage",
+        "parameters": [{ "$ref": "#/components/parameters/MessageId" }],
+        "responses": {
+          "200": { "description": "Cancellation requested or applied" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/messages/{message_id}/reconcile": {
+      "post": {
+        "operationId": "reconcileMessage",
+        "parameters": [{ "$ref": "#/components/parameters/MessageId" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["action"],
+                "properties": {
+                  "action": { "enum": ["query", "cancel"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "External query dispatched or recovery cancelled" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/tasks": {
+      "post": {
+        "operationId": "createTask",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["requestId", "agent", "input"],
+                "properties": {
+                  "requestId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "agent": { "type": "string", "minLength": 1 },
+                  "input": { "type": "string", "minLength": 1, "maxLength": 8000 },
+                  "requestedSkills": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "uniqueItems": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Existing idempotent Task result",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Task" }
+              }
+            }
+          },
+          "202": {
+            "description": "Task created and Message queued",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Task" }
+              }
+            }
+          },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer" }
+    },
+    "parameters": {
+      "Agent": {
+        "name": "agent",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "minLength": 1 }
+      },
+      "SessionId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "minLength": 1 }
+      },
+      "MessageId": {
+        "name": "message_id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "string", "minLength": 1 }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Stable API error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Error" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Capabilities": {
+        "type": "object",
+        "required": ["serverVersion", "apiVersion", "formats", "transports"],
+        "properties": {
+          "serverVersion": { "type": "string" },
+          "apiVersion": { "const": "abar/v1" },
+          "formats": { "type": "object" },
+          "transports": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "RevisionList": {
+        "type": "object",
+        "required": ["agent", "revisions", "current"],
+        "properties": {
+          "agent": { "type": "string" },
+          "revisions": { "type": "array", "items": { "type": "integer" } },
+          "current": {
+            "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1 }]
+          }
+        }
+      },
+      "AgentRevision": {
+        "type": "object",
+        "required": ["apiVersion", "kind", "metadata", "spec"],
+        "properties": {
+          "apiVersion": { "const": "abar/v1" },
+          "kind": { "const": "AgentRevision" },
+          "metadata": { "type": "object" },
+          "spec": { "type": "object" }
+        }
+      },
+      "ControlPlaneOverview": {
+        "type": "object",
+        "required": ["apiVersion", "serverVersion", "tenant", "generatedAt", "runtime", "agents"],
+        "properties": {
+          "apiVersion": { "const": "abar/v1" },
+          "serverVersion": { "type": "string" },
+          "tenant": { "type": "string" },
+          "generatedAt": { "type": "string", "format": "date-time" },
+          "runtime": { "type": "object" },
+          "agents": {
+            "type": "array",
+            "items": { "type": "object" }
+          }
+        }
+      },
+      "ScopeReviewEvidence": {
+        "type": "object",
+        "required": ["agent", "candidateRevision", "reviewer", "decision", "reviewedAt"],
+        "properties": {
+          "agent": { "type": "string" },
+          "fromRevision": {
+            "anyOf": [{ "type": "null" }, { "type": "integer", "minimum": 1 }]
+          },
+          "candidateRevision": { "type": "integer", "minimum": 1 },
+          "reviewer": { "type": "string" },
+          "decision": { "enum": ["approved", "rejected"] },
+          "comment": {
+            "anyOf": [{ "type": "null" }, { "type": "string" }]
+          },
+          "reviewedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Session": {
+        "type": "object",
+        "required": ["id", "tenant", "agent", "user", "status", "createdAt", "lastActiveAt"],
+        "properties": {
+          "id": { "type": "string" },
+          "tenant": { "type": "string" },
+          "agent": { "type": "string" },
+          "user": { "type": "string" },
+          "status": { "enum": ["active", "idle", "closed", "archived"] },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "lastActiveAt": { "type": "string", "format": "date-time" },
+          "latestMessageId": { "type": "string" },
+          "latestMessageState": {
+            "enum": [
+              "queued",
+              "running",
+              "waiting_approval",
+              "waiting_external",
+              "completed",
+              "failed",
+              "cancelled"
+            ]
+          },
+          "latestMessageInput": { "type": "string" },
+          "messageCount": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "required": ["session", "message"],
+        "properties": {
+          "session": { "$ref": "#/components/schemas/Session" },
+          "message": { "$ref": "#/components/schemas/Message" }
+        }
+      },
+      "CreateMessage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["input"],
+        "properties": {
+          "input": { "type": "string", "minLength": 1 },
+          "requestedSkills": {
+            "type": "array",
+            "items": { "type": "string" },
+            "uniqueItems": true
+          }
+        }
+      },
+      "ApprovalRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["approvalId", "decision"],
+        "properties": {
+          "approvalId": { "type": "string" },
+          "decision": { "enum": ["approved", "rejected"] },
+          "scopes": { "type": "array", "items": { "type": "string" } },
+          "comment": { "anyOf": [{ "type": "null" }, { "type": "string" }] }
+        }
+      },
+      "ApprovalTask": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "approvalId", "sessionId", "messageId", "agent", "agentRevision",
+          "requester", "toolId", "argumentsJson", "pendingSince"
+        ],
+        "properties": {
+          "approvalId": { "type": "string" },
+          "sessionId": { "type": "string" },
+          "messageId": { "type": "string" },
+          "agent": { "type": "string" },
+          "agentRevision": { "type": "integer", "minimum": 1 },
+          "requester": { "type": "string" },
+          "toolId": { "type": "string" },
+          "argumentsJson": { "type": "string" },
+          "pendingSince": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "required": [
+          "id", "sessionId", "agentRevision", "state", "input", "requestedSkills",
+          "output", "modelUsage", "toolResults", "pendingApproval", "pendingExternal", "approval",
+          "checkpoint", "createdAt", "updatedAt", "composition"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "sessionId": { "type": "string" },
+          "agentRevision": { "type": "integer", "minimum": 1 },
+          "state": {
+            "enum": ["queued", "running", "waiting_approval", "waiting_external", "completed", "failed", "cancelled"]
+          },
+          "input": { "type": "string" },
+          "requestedSkills": { "type": "array", "items": { "type": "string" } },
+          "output": { "anyOf": [{ "type": "null" }, { "type": "string" }] },
+          "modelUsage": {
+            "type": "object",
+            "required": ["promptTokens", "completionTokens", "totalTokens"],
+            "properties": {
+              "promptTokens": { "type": "integer", "minimum": 0 },
+              "completionTokens": { "type": "integer", "minimum": 0 },
+              "totalTokens": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "toolResults": { "type": "array" },
+          "pendingApproval": { "anyOf": [{ "type": "null" }, { "type": "object" }] },
+          "pendingExternal": { "anyOf": [{ "type": "null" }, { "type": "object" }] },
+          "approval": { "anyOf": [{ "type": "null" }, { "type": "object" }] },
+          "checkpoint": { "anyOf": [{ "type": "null" }, { "type": "object" }] },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" },
+          "composition": { "type": "object" }
+        }
+      },
+      "RuntimeEvent": {
+        "type": "object",
+        "required": ["eventId", "sessionId", "messageId", "sequence", "eventType", "at", "schemaVersion", "data"],
+        "properties": {
+          "eventId": { "type": "string" },
+          "sessionId": { "type": "string" },
+          "messageId": { "type": "string" },
+          "sequence": { "type": "integer", "minimum": 1 },
+          "eventType": { "type": "string" },
+          "at": { "type": "string", "format": "date-time" },
+          "schemaVersion": { "const": "runtime-event/v1" },
+          "data": { "type": "object" }
+        }
+      },
+      "RuntimeStatus": {
+        "type": "object",
+        "required": ["apiVersion", "serverVersion", "status", "checkedAt", "activeWorkers", "sessions", "messages", "providers", "storage"],
+        "properties": {
+          "apiVersion": { "const": "abar/v1" },
+          "serverVersion": { "type": "string" },
+          "status": { "enum": ["ready", "degraded"] },
+          "checkedAt": { "type": "string", "format": "date-time" },
+          "activeWorkers": { "type": "integer", "minimum": 0 },
+          "sessions": { "type": "object" },
+          "messages": { "type": "object" },
+          "providers": { "type": "object" },
+          "storage": { "type": "object" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message", "retryable"],
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" },
+              "retryable": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

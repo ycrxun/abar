@@ -1,0 +1,10 @@
+modelRef: default
+modelVersion: qa-model-v1
+tools:
+  mcpServers: []
+knowledge:
+  sources:
+    product-handbook:
+      path: knowledge/product-handbook
+dataPolicy:
+  fields: []

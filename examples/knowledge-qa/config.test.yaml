@@ -1,0 +1,8 @@
+models:
+  default:
+    provider: openai-compatible
+    modelId: qa-model-v1
+    endpoint: http://127.0.0.1:18195/v1
+    timeoutSeconds: 10
+    capabilities:
+      - text

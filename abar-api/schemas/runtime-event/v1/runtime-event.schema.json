@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:abar:schema:runtime-event:v1",
+  "title": "Runtime Event v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "eventId",
+    "sessionId",
+    "messageId",
+    "sequence",
+    "eventType",
+    "at",
+    "schemaVersion",
+    "data"
+  ],
+  "properties": {
+    "eventId": { "type": "string", "minLength": 1 },
+    "sessionId": { "type": "string", "minLength": 1 },
+    "messageId": { "type": "string", "minLength": 1 },
+    "sequence": { "type": "integer", "minimum": 1 },
+    "eventType": { "type": "string", "minLength": 1 },
+    "at": { "type": "string", "format": "date-time" },
+    "schemaVersion": { "const": "runtime-event/v1" },
+    "data": { "type": "object" }
+  }
+}

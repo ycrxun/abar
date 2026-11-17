@@ -1,0 +1,146 @@
+apiVersion: webui/v1
+kind: WebUIView
+binding:
+  agent: merchandise-operations-assistant
+metadata:
+  name: merchandise-operations
+  title: 商品运营助手
+  subtitle: 对话识别配货、补货与调拨
+  badges:
+    - 一个 Agent · 三类业务意图
+    - 模拟数据 · 无成本毛利
+task:
+  title: 今天要处理什么商品运营任务？
+  chatPlaceholder: 例如：看看华东库存异常门店，判断应该补货、配货还是门店间调拨
+  fields:
+    - name: region
+      label: 快捷操作区域
+      type: select
+      defaultValue: 华东
+      options: [华东, 华南, 华北, 西南, 华中]
+    - name: note
+      label: 快捷操作补充要求
+      type: textarea
+      placeholder: 可选，例如：优先同城、覆盖 7 天或只处理新品
+  actions:
+    - id: allocate
+      label: 建议配货计划
+      inputTemplate: "请判断并生成{{region}}区域本周直营门店配货计划。{{note}}"
+    - id: replenish
+      label: 建议补货计划
+      inputTemplate: "请判断并生成{{region}}区域本周直营门店补货计划。{{note}}"
+    - id: transfer
+      label: 建议调拨方案
+      inputTemplate: "请判断并生成{{region}}区域本周门店间调拨建议。{{note}}"
+detail:
+  titleTemplate: 商品运营任务
+confirmation:
+  label: 确认执行业务方案
+  inputTemplate: "确认执行当前会话中已展示的业务方案，提交审批并在批准后创建对应业务单。"
+  requestedSkills:
+    - merchandise-write-approval
+metrics:
+  - label: 配货评估门店
+    toolId: inventory.calculate_allocation_plan
+    path: summary.evaluatedStores
+  - label: 配货建议
+    toolId: inventory.calculate_allocation_plan
+    path: summary.returnedRecommendations
+  - label: 补货评估门店
+    toolId: inventory.calculate_replenishment_plan
+    path: summary.evaluatedStores
+  - label: 补货建议
+    toolId: inventory.calculate_replenishment_plan
+    path: summary.returnedRecommendations
+  - label: 调拨评估门店
+    toolId: inventory.calculate_transfer_recommendations
+    path: summary.evaluatedStores
+  - label: 调拨建议
+    toolId: inventory.calculate_transfer_recommendations
+    path: summary.returnedRecommendations
+  - label: 配货单
+    toolId: inventory.create_allocation_order
+    path: orderId
+  - label: 补货单
+    toolId: inventory.create_replenishment_order
+    path: orderId
+  - label: 调拨单
+    toolId: inventory.create_transfer_order
+    path: orderId
+approval:
+  title: 商品运营写操作审批
+  approveLabel: 批准业务单
+  rejectLabel: 拒绝业务单
+panels:
+  - type: table
+    title: 白盒配货计划
+    toolId: inventory.calculate_allocation_plan
+    rowsPath: recommendations
+    meta:
+      - label: 数据时间
+        path: dataAsOf
+      - label: 快照
+        path: snapshotId
+    columns:
+      - label: 品类 / SKU
+        paths: [category, skuName, size, color]
+        format: "{{category}} / {{skuName}} ({{size}}, {{color}})"
+      - label: 来源 → 门店
+        paths: [sourceStoreName, targetStoreName]
+        format: "{{sourceStoreName}} → {{targetStoreName}}"
+      - label: 数量
+        path: quantity
+      - label: 原因码
+        path: reasonCodes
+        join: ", "
+        className: reason
+  - type: table
+    title: 白盒补货计划
+    toolId: inventory.calculate_replenishment_plan
+    rowsPath: recommendations
+    meta:
+      - label: 数据时间
+        path: dataAsOf
+      - label: 快照
+        path: snapshotId
+    columns:
+      - label: 品类 / SKU
+        paths: [category, skuName, size, color]
+        format: "{{category}} / {{skuName}} ({{size}}, {{color}})"
+      - label: 来源 → 门店
+        paths: [sourceStoreName, targetStoreName]
+        format: "{{sourceStoreName}} → {{targetStoreName}}"
+      - label: 数量
+        path: quantity
+      - label: 覆盖天数
+        paths: [targetCoverDaysBefore, targetCoverDaysAfter]
+        format: "{{targetCoverDaysBefore}} → {{targetCoverDaysAfter}}"
+      - label: 原因码
+        path: reasonCodes
+        join: ", "
+        className: reason
+  - type: table
+    title: 白盒调拨方案
+    toolId: inventory.calculate_transfer_recommendations
+    rowsPath: recommendations
+    meta:
+      - label: 数据时间
+        path: dataAsOf
+      - label: 快照
+        path: snapshotId
+    columns:
+      - label: 品类 / SKU
+        paths: [category, skuName, size, color]
+        format: "{{category}} / {{skuName}} ({{size}}, {{color}})"
+      - label: 调出 → 调入
+        paths: [sourceStoreName, targetStoreName]
+        format: "{{sourceStoreName}} → {{targetStoreName}}"
+      - label: 数量
+        path: quantity
+      - label: 覆盖天数
+        paths: [targetCoverDaysBefore, targetCoverDaysAfter]
+        format: "{{targetCoverDaysBefore}} → {{targetCoverDaysAfter}}"
+      - label: 原因码
+        path: reasonCodes
+        join: ", "
+        className: reason

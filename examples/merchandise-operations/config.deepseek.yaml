@@ -1,0 +1,13 @@
+models:
+  default:
+    provider: openai-compatible
+    modelId: deepseek-flash
+    endpoint: https://api.deepseek.com/v1
+    authRef: env://DEEPSEEK_API_KEY
+    timeoutSeconds: 120
+    parameters:
+      thinking:
+        type: disabled
+    capabilities:
+      - text
+      - tool-calls

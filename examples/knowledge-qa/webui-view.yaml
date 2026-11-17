@@ -1,0 +1,28 @@
+apiVersion: webui/v1
+kind: WebUIView
+binding:
+  agent: knowledge-qa-assistant
+metadata:
+  name: knowledge-qa
+  title: 知识问答助手
+  subtitle: 基于企业知识资料进行有依据的回答
+task:
+  title: 想了解哪项产品或服务政策？
+  chatPlaceholder: 例如：标准营业时间是什么？质量问题如何处理？
+  fields: []
+  actions:
+    - id: store-service
+      label: 门店服务
+      inputTemplate: 标准门店营业时间是什么？线上订单如何到店自提？
+    - id: warranty
+      label: 保修政策
+      inputTemplate: 商品保修期限和申请条件是什么？
+    - id: returns
+      label: 退换货政策
+      inputTemplate: 无理由退货和质量问题退换货分别有什么规则？
+detail:
+  titleTemplate: 知识问答
+context:
+  enabled: false
+approval:
+  enabled: false

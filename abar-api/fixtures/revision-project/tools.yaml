@@ -1,0 +1,7 @@
+tools:
+  - id: catalog.query-example
+    versionRange: ">=4.7 <5.0"
+    effect: read
+  - id: records.apply
+    versionRange: ">=6.2 <7.0"
+    effect: write

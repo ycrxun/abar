@@ -1,0 +1,19 @@
+[package]
+name = "abar-model-openai"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "OpenAI-compatible ModelProvider for ABAR"
+
+[dependencies]
+abar-api.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true
+
+[lints]
+workspace = true

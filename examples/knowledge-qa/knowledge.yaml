@@ -1,0 +1,5 @@
+sources:
+  - id: product-handbook
+    required: true
+    retrieval:
+      topK: 4

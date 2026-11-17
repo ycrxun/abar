@@ -1,0 +1,50 @@
+{
+  "id": "msg-example-18",
+  "sessionId": "ses-example-18",
+  "agentRevision": 18,
+  "state": "running",
+  "input": "Prepare an example operation.",
+  "requestedSkills": [],
+  "output": null,
+  "toolResults": [],
+  "pendingApproval": null,
+  "pendingExternal": null,
+  "approval": null,
+  "checkpoint": null,
+  "createdAt": "2026-11-17T09:00:00Z",
+  "updatedAt": "2026-11-17T09:01:00Z",
+  "composition": {
+    "scopeDigest": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "behaviorDigest": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "model": {
+      "route": "general-tool-use",
+      "modelId": "local/qwen",
+      "version": "2026-11-01"
+    },
+    "tools": [
+      {
+        "id": "catalog.query-example",
+        "version": "4.7",
+        "schemaDigest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "effect": "read"
+      }
+    ],
+    "skills": [
+      {
+        "id": "decision-guidance",
+        "version": "11",
+        "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      }
+    ],
+    "knowledge": [
+      {
+        "source": "policy",
+        "documentId": "doc-12",
+        "version": "2026-11-17",
+        "digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "retrievedAt": "2026-11-17T08:59:00Z"
+      }
+    ],
+    "resolvedAt": "2026-11-17T09:00:01Z"
+  }
+}

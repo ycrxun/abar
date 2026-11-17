@@ -1,0 +1,33 @@
+modelRef: default
+modelVersion: ollama-llama3.2
+tools:
+  mcpServers:
+    - name: inventory
+      endpoint: http://127.0.0.1:18080/mcp
+      idempotencyCheckTool: check_idempotency
+      tools:
+        calculate_allocation_plan: read
+        create_allocation_order: write
+        calculate_replenishment_plan: read
+        create_replenishment_order: write
+        calculate_transfer_recommendations: read
+        create_transfer_order: write
+        query_store_inventory: read
+        query_sales_velocity: read
+        query_in_transit: read
+knowledge:
+  sources:
+    allocation-policy:
+      path: knowledge/allocation-policy
+    replenishment-policy:
+      path: knowledge/replenishment-policy
+    transfer-policy:
+      path: knowledge/transfer-policy
+dataPolicy:
+  fields:
+    - path: unitCost
+      dataClass: cost
+    - path: grossMargin
+      dataClass: gross-margin
+    - path: supplierPrice
+      dataClass: supplier-price

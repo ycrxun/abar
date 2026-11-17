@@ -1,0 +1,14 @@
+tools:
+  read: []
+  write: []
+skills:
+  - grounded-qa
+knowledgeSources:
+  - product-handbook
+data:
+  allow:
+    - product-docs
+  deny:
+    - cost
+    - gross-margin
+    - supplier-price
